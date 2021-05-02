@@ -1,0 +1,2 @@
+20.194.22.200 - - [01/May/2021:22:51:39 +0000] "GET /.env HTTP/1.1" 200 20449 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36"
+20.194.22.200 - - [01/May/2021:22:51:43 +0000] "POST / HTTP/1.1" 405 580 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36"
