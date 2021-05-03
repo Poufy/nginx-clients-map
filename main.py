@@ -3,15 +3,19 @@ import sys
 import re
 import os
 import json
+import ast
+import requests
 
 def main():
     try:
         ips_file_name = "ips.txt"
-        unique_ips_file_name = "unique_ips.txt"
         filename = sys.argv[1]
+        # Extract ips and time stamps 
         ips_timestamps_dict = extract_ips_timestaps(sys.argv[1])
+        # Merge and write ips to file
         write_ips_file(ips_timestamps_dict, ips_file_name)
-        #write_unique_ips_file(ips_file_name, unique_ips_file_name)
+        # Iterate over dictionary file and make get requests
+        retrieve_locations(ips_file_name)
     except IndexError:
         print ("You did not specify a file")
         sys.exit(1)
@@ -36,22 +40,53 @@ def extract_ips_timestaps(filename):
     return ip_time_dict
 
 def write_ips_file(ips_timestamps_dict, ips_file_name):
-    # if os.path.exists(ips_file_name):
-    #     append_write = 'a' # append if already exists
-    # else:
-    #     append_write = 'w' # make a new file if not
+    if os.path.exists(ips_file_name): # We already have previous ids, we need to append the existing ones.
+        # Read existing ips into dictionary
+        ipsFile = open(ips_file_name, 'r');
+        contents = ipsFile.read()
+        existing_dictionary = ast.literal_eval(contents)
 
-    ipsFile = open(ips_file_name, 'w')
+        # Iterate over the new dictionary and append to the existing one
+        for key, value in ips_timestamps_dict.items():
+            existing_dictionary[key] = value
 
-    json.dump(ips_timestamps_dict, ipsFile)
+        # Dump the new dictionary to ips.txt
+        ipsFile = open(ips_file_name, 'w')
+        json.dump(existing_dictionary, ipsFile)
+        ipsFile.close()
 
-    # for key, value in ips_timestamps_dict.items() :
-    #    ipsFile.write("{} {}\n".format(key, value))
+    else:
+        ipsFile = open(ips_file_name, 'w')
+        json.dump(ips_timestamps_dict, ipsFile)
+        ipsFile.close() 
+
+
+def retrieve_locations(filename):
+    ipsFile = open(filename, 'r');
+    contents = ipsFile.read()
+    dictionary = ast.literal_eval(contents)
     
-    ipsFile.close()
+    locationsFile = open("clients.json", 'w')
+    locationsFile.write("[")
 
-def write_unique_ips_file(ips_file_name, unique_ips_file_name):
-    os.system("tac ips.txt | sort -u -t " " -k1,1 > unique_ips.txt")
+    dict_len = len(dictionary)
+    counter = 0
+    for key, value in dictionary.items():
+        counter = counter + 1
+        URL = "https://get.geojs.io/v1/ip/geo/{}.json".format(key)
+        # sending get request and saving the response as response object
+        r = requests.get(url = URL)
 
+        # extracting data in json format
+        data = r.json()
+        data["timestamp"] = value
+        datastr = json.dumps(data)
+        locationsFile.write(datastr)
+        if(counter != dict_len):
+            locationsFile.write(",")
 
+    locationsFile.write("]")
+    locationsFile.close()
+
+        
 main()
