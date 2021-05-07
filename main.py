@@ -10,32 +10,36 @@ def main():
     try:
         ips_file_name = "ips.txt"
         filename = sys.argv[1]
-        # Extract ips and time stamps 
-        ips_timestamps_dict = extract_ips_timestaps(sys.argv[1])
+        # Extract ips and time stamps
+        if(len(sys.argv) == 3): 
+            ips_timestamps_dict = extract_ips_timestaps(sys.argv[1], sys.argv[2])
+        else:
+            ips_timestamps_dict = extract_ips_timestaps(sys.argv[1])
         # Merge and write ips to file
         write_ips_file(ips_timestamps_dict, ips_file_name)
         # Iterate over dictionary file and make get requests
-        retrieve_locations(ips_file_name)
+        #retrieve_locations(ips_file_name)
     except IndexError:
         print ("You did not specify a file")
         sys.exit(1)
 
 # Returns a dictionary containing ips and the latest timestamps
-def extract_ips_timestaps(filename):
+def extract_ips_timestaps(filename, filter=""):
     logsFile = open(filename, 'r')
     lines = logsFile.readlines()
 
     # Regular expressions
     ip_regex = "^([0-9.])+" #\[.+\]
-    timestamp_regex = "\[.+\]"
+    timestamp_regex = "\[.+?\]"
 
     ip_time_dict = {}
 
     # Strips the newline character
     for line in lines:
-        ip = re.search(ip_regex, line.strip()).group(0) # Get the matched text
-        timestamp = re.search(timestamp_regex, line.strip()).group(0)
-        ip_time_dict[ip] = timestamp 
+        if(filter in line):
+            ip = re.search(ip_regex, line.strip()).group(0) # Get the matched text
+            timestamp = re.search(timestamp_regex, line.strip()).group(0)
+            ip_time_dict[ip] = timestamp 
 
     return ip_time_dict
 

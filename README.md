@@ -35,3 +35,7 @@ For this task we need to use Python since the queries are slightly more complex 
 3- Iterate over the newly modified file (ips.txt) to create the GET requests to the API.
 
 4- output the responses alongside the timestamps to a json array format.
+
+## TODO
+
+- Check the JSON file if an IP already exists and don't make an additional API call, just update the timestamp.
