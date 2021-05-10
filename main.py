@@ -18,7 +18,7 @@ def main():
         # Merge and write ips to file
         write_ips_file(ips_timestamps_dict, ips_file_name)
         # Iterate over dictionary file and make get requests
-        #retrieve_locations(ips_file_name)
+        retrieve_locations(ips_file_name)
     except IndexError:
         print ("You did not specify a file")
         sys.exit(1)
@@ -29,17 +29,17 @@ def extract_ips_timestaps(filename, filter=""):
     lines = logsFile.readlines()
 
     # Regular expressions
-    ip_regex = "^([0-9.])+" #\[.+\]
+    ip_regex = "\"([0-9.])+\"$" #\[.+\]
     timestamp_regex = "\[.+?\]"
 
     ip_time_dict = {}
 
     # Strips the newline character
     for line in lines:
-        if(filter in line):
+        if(filter in line and re.search(ip_regex, line.strip()) != None):
             ip = re.search(ip_regex, line.strip()).group(0) # Get the matched text
             timestamp = re.search(timestamp_regex, line.strip()).group(0)
-            ip_time_dict[ip] = timestamp 
+            ip_time_dict[ip.strip("\"")] = timestamp 
 
     return ip_time_dict
 
